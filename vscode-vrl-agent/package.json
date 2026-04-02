@@ -2,7 +2,7 @@
   "name": "vrl-parser-agent",
   "displayName": "VRL Parser Agent",
   "description": "AI agent that generates Vector VRL parsers from raw log messages with OCSF schema mapping. Powered by a custom LLM server.",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "publisher": "horo",
   "license": "MIT",
   "engines": {
