@@ -11,7 +11,6 @@ import { buildBatchPrompt } from "./prompts";
 import { computeSignature } from "./signatures";
 import { testVrl, VrlTestResult } from "./vector";
 import { lintVrl, formatLintIssues } from "./vrl-lint";
-import { generateVrl, StructureDescription } from "./vrl-gen";
 
 // ── Result types ─────────────────────────────────────────────────────────────
 
@@ -108,15 +107,8 @@ export class VrlAgent {
       return { action: "error", message: msg };
     }
 
-    // Try Mode 1 (JSON structure description → template VRL) first
-    const generated = this.tryGenerateFromDescription(rawResponse);
-    if (generated) {
-      vrl = generated;
-      suspicious = false;
-    } else {
-      // Mode 2: extract raw VRL from model output
-      [vrl, suspicious] = validateModelOutput(rawResponse);
-    }
+    // Extract VRL from model output
+    [vrl, suspicious] = validateModelOutput(rawResponse);
 
     // Validate: first static lint, then Vector CLI. Session history so model
     // remembers previous attempts and doesn't repeat the same mistakes.
@@ -240,28 +232,6 @@ export class VrlAgent {
   /**
    * Test an existing VRL program against a sample log.
    */
-  /**
-   * Try to parse the LLM response as a JSON structure description (Mode 1).
-   * If successful, generates VRL from the description using templates.
-   * Returns the generated VRL string, or null if not a structure description.
-   */
-  private tryGenerateFromDescription(response: string): string | null {
-    // Try to extract JSON from ```json ... ``` fence
-    const jsonMatch = response.match(/```json\s*\n([\s\S]*?)\n\s*```/);
-    if (!jsonMatch) return null;
-
-    try {
-      const desc = JSON.parse(jsonMatch[1]) as StructureDescription;
-      if (!desc.steps || !desc.fields) return null;
-      if (desc.mode !== "structure") return null;
-
-      const vrl = generateVrl(desc);
-      return vrl; // null if regex step found (falls back to Mode 2)
-    } catch {
-      return null; // Not valid JSON, fall back to Mode 2
-    }
-  }
-
   async testVrl(vectorPath: string, vrlCode: string, sampleLog: string): Promise<VrlTestResult> {
     return testVrl(vectorPath, vrlCode, sampleLog);
   }

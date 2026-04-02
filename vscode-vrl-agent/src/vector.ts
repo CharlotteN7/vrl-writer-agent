@@ -94,8 +94,8 @@ export async function testVrl(
     inputEvent = JSON.stringify({ message: sampleLog });
   }
 
-  // Write temp files
-  fs.writeFileSync(vrlFile, vrlCode, "utf-8");
+  // Write temp files — normalize line endings to LF (CRLF causes Vector to fail with exit 70)
+  fs.writeFileSync(vrlFile, vrlCode.replace(/\r\n/g, "\n").replace(/\r/g, "\n"), "utf-8");
   // Input must be NDJSON (one JSON object per line, with trailing newline)
   fs.writeFileSync(inputFile, inputEvent + "\n", "utf-8");
 
