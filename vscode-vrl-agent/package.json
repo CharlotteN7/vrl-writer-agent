@@ -1,0 +1,161 @@
+{
+  "name": "vrl-parser-agent",
+  "displayName": "VRL Parser Agent",
+  "description": "AI agent that generates Vector VRL parsers from raw log messages with OCSF schema mapping. Powered by a custom LLM server.",
+  "version": "0.22.0",
+  "publisher": "horo",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "vector",
+    "vrl",
+    "log parsing",
+    "ocsf",
+    "llm",
+    "ai agent"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vrlAgent.generateParser",
+        "title": "VRL: Generate Parser from Selection/File",
+        "icon": "$(symbol-event)"
+      },
+      {
+        "command": "vrlAgent.analyzeJsonFile",
+        "title": "VRL: Analyze JSON Events File"
+      },
+      {
+        "command": "vrlAgent.showPatternLibrary",
+        "title": "VRL: Show Pattern Library"
+      },
+      {
+        "command": "vrlAgent.selectModel",
+        "title": "VRL: Select LLM Model"
+      },
+      {
+        "command": "vrlAgent.checkConnection",
+        "title": "VRL: Check LLM Server Connection"
+      },
+      {
+        "command": "vrlAgent.testVrl",
+        "title": "VRL: Test Parser with Vector CLI"
+      },
+      {
+        "command": "vrlAgent.clearCache",
+        "title": "VRL: Clear Pattern Cache"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "vrlAgent.generateParser",
+          "group": "1_modification",
+          "when": "editorHasSelection || resourceExtname =~ /\\.(log|json|ndjson|txt|csv)$/"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "vrlAgent.analyzeJsonFile",
+          "when": "resourceExtname == .json || resourceExtname == .ndjson",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "vrlAgent.generateParser",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "VRL Parser Agent",
+      "properties": {
+        "vrlAgent.serverUrl": {
+          "type": "string",
+          "default": "",
+          "description": "LLM server base URL (e.g. https://llm.internal.company.com)",
+          "order": 1
+        },
+        "vrlAgent.apiToken": {
+          "type": "string",
+          "default": "",
+          "description": "Bearer token for LLM server authentication",
+          "order": 2
+        },
+        "vrlAgent.model": {
+          "type": "string",
+          "default": "",
+          "description": "Model ID to use. Use command 'VRL: Select LLM Model' to pick from available models.",
+          "order": 3
+        },
+        "vrlAgent.temperature": {
+          "type": "number",
+          "default": 0.1,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Sampling temperature (lower = more deterministic VRL output)",
+          "order": 4
+        },
+        "vrlAgent.maxTokens": {
+          "type": ["number", "null"],
+          "default": null,
+          "description": "Maximum tokens in the response. Leave empty for model default.",
+          "order": 5
+        },
+        "vrlAgent.vectorPath": {
+          "type": "string",
+          "default": "vector",
+          "description": "Path to the Vector CLI binary (e.g. /usr/local/bin/vector). Used for VRL syntax validation.",
+          "order": 6
+        },
+        "vrlAgent.validateWithVector": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically validate generated VRL with Vector CLI and retry on failure",
+          "order": 7
+        },
+        "vrlAgent.autoSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically save generated parsers to the pattern library",
+          "order": 8
+        },
+        "vrlAgent.maxBatchSamples": {
+          "type": "number",
+          "default": 15,
+          "description": "Maximum number of sample events to send to the model for batch analysis",
+          "order": 9
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run bundle",
+    "compile": "tsc -p ./",
+    "bundle": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node18 --minify",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "openai": "^4.73.0",
+    "sql.js": "^1.11.0"
+  }
+}

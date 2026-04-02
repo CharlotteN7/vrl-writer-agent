@@ -1,0 +1,11 @@
+node_modules/
+out/
+dist/
+*.vsix
+*.db
+.vscode-test/
+__pycache__/
+*.pyc
+.env
+vrl_patterns.db
+llm_openapi.json
